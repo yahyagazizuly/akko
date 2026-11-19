@@ -1,24 +1,38 @@
 {
   "name": "akko",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Akko — a tiny ink-drawn buddy that runs, jumps and plays on your screen. Zero dependencies, for any website or app.",
   "type": "module",
   "main": "./dist/akko.js",
   "module": "./dist/akko.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/akko.js" },
-    "./react": { "types": "./dist/react.d.ts", "import": "./dist/react.js" }
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/akko.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react.js"
+    }
   },
   "unpkg": "./dist/akko.global.js",
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "sideEffects": false,
   "scripts": {
     "build": "node build.mjs",
     "typecheck": "tsc --noEmit"
   },
-  "peerDependencies": { "react": ">=17" },
-  "peerDependenciesMeta": { "react": { "optional": true } },
+  "peerDependencies": {
+    "react": ">=17"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "esbuild": "^0.25.0",
     "typescript": "^5.6.0",
