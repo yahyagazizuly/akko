@@ -1,13 +1,11 @@
 <div align="center">
 
-<img src="desktop/assets/icon.png" width="128" height="128" alt="Акко">
+<img src="desktop/assets/icon.png" width="128" height="128" alt="Akko">
 
-# Акко
+# Akko
 
-**Маленький чернильный человечек, который живёт у тебя на экране.**<br>
-Бегает, прыгает, лезет на окна, летает на джетпаке, засыпает — и ни капли не мешает работать.
-
-<sub>A tiny ink-drawn buddy that runs, climbs and plays on your desktop.</sub>
+**A tiny ink-drawn buddy who lives on your screen.**<br>
+He runs, jumps, climbs your windows, flies a jetpack, gets hungry, falls asleep — and never gets in your way.
 
 <br>
 
@@ -18,89 +16,89 @@
 ![Size](https://img.shields.io/badge/app-~1%20MB-2ea44f)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-[Возможности](#-возможности) · [Установка](#-установка) · [Настройки](#%EF%B8%8F-настройки) · [Производительность](#-производительность) · [Библиотека](#-библиотека-akko) · [Устройство](#-как-устроено)
+[Features](#-features) · [Install](#-install) · [Settings](#%EF%B8%8F-settings) · [Performance](#-performance) · [Library](#-the-akko-library) · [How it works](#-how-it-works)
 
 </div>
 
 ---
 
-## ✨ Возможности
+## ✨ Features
 
 <table>
 <tr>
 <td width="50%" valign="top">
 
-### 🏃 Живёт на рабочем столе
-- Ходит по низу экрана и запрыгивает на **Dock**
-- Залезает на **окна** — по стенке, прыжком или на джетпаке
-- Тащишь окно — **едет на нём**, закрываешь — сваливается
-- Прячется за окнами и выглядывает
-- Лазит по **иконкам** рабочего стола
+### 🏃 Lives on your desktop
+- Walks along the bottom of the screen and hops onto the **Dock**
+- Climbs **windows** — up the side, with a big jump or by jetpack
+- Drag a window and he **rides along**; close it and he falls off
+- Hides behind windows and peeks out
+- Hops across your desktop **icons**
 
 </td>
 <td width="50%" valign="top">
 
-### 🎭 Больше 50 трюков
-- Джетпак 🚀, шарик 🎈, сальто, колесо, лунная походка
-- Мячик ⚽, жонглирование, кунг-фу 🥋, брейк-данс
-- Фокус с кроликом 🎩, селфи 📸, гитара 🎸, рыбалка 🎣
-- Снеговик ⛄ / цветок 🌷 / тыква 🎃 — по сезону
-- «Ломается» понарошку: *ОШИБКА 404: Акко не найден* 👾
+### 🎭 50+ tricks
+- Jetpack 🚀, balloon 🎈, backflips, cartwheels, moonwalk
+- Ball ⚽, juggling, kung fu 🥋, breakdance
+- Magic rabbit 🎩, selfies 📸, guitar 🎸, fishing 🎣
+- Snowman ⛄ / flower 🌷 / pumpkin 🎃 — by season
+- Pretends to crash: *ERROR 404: Akko not found* 👾
 
 </td>
 </tr>
 <tr>
 <td valign="top">
 
-### 👀 Замечает, что происходит
-- Переключился на WhatsApp — *«кому пишешь? 👀»*
-- Играет музыка — танцует с нотками
-- Пришло уведомление — бежит под него
-- Скриншот — позирует, зарядка — радуется
-- Отошёл от компьютера — засыпает
+### 👀 Notices what you do
+- Switch to a chat app — *"who are you texting? 👀"*
+- Music playing — dances with little notes
+- A notification arrives — runs over to it
+- Screenshot — strikes a pose; charger in — cheers
+- Step away — he dozes off
 
 </td>
 <td valign="top">
 
-### 💛 Свой характер
-- **Энергия**: трюки её тратят, сон и кофе ☕ возвращают
-- **Настроение**: растёт от внимания и печенек 🍪
-- Скучает, если его долго не замечать, — зовёт поиграть
-- Напоминает размяться раз в ~50 минут
-- Ночью зевает и смотрит на звёзды
+### 💛 Has a life of his own
+- **Energy** — tricks use it up, naps and coffee ☕ bring it back
+- **Mood** — goes up with attention and snacks, down when ignored
+- **Fullness** — throw him food 🍪, as much as you like; he eats until he's full
+- Gets bored and comes over to ask you to play
+- Reminds you to stretch every ~50 minutes
 
 </td>
 </tr>
 </table>
 
-Его можно **ткнуть, погладить, схватить мышкой и бросить**. Все клики проходят сквозь него к твоим окнам — ловятся, только когда курсор прямо над Акко.
+You can **poke him, pet him, grab him with the mouse and throw him**. Every click passes straight through to your windows — he only catches the mouse when the pointer is right on him.
 
 ---
 
-## 📦 Установка
+## 📦 Install
 
-### macOS — нативное приложение
+### macOS — native app
 
 ```bash
 cd mac && ./build.sh --run
 ```
 
-Соберёт `mac/build/Akko.app` и `Akko-0.1.0.dmg`. Открой `.dmg` и перетащи **Akko** в «Программы».
+This builds `mac/build/Akko.app` and `Akko-0.1.0.dmg`. Open the `.dmg` and drag **Akko** into Applications.
 
-- Универсальное приложение: Apple Silicon + Intel, macOS 13+
-- Нужны только **Xcode Command Line Tools** и **Node.js**
-- Настройки: запусти Akko ещё раз (из Launchpad или Spotlight) или значок в строке меню → «Настройки…»
-- Показать / спрятать: <kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>⇧</kbd> <kbd>M</kbd>
+- Universal app: Apple Silicon + Intel, macOS 13+
+- Needs only **Xcode Command Line Tools** and **Node.js**
+- Settings: launch Akko again (Launchpad or Spotlight), or menu bar icon → *Settings…*
+- Show / hide: <kbd>⌘</kbd> <kbd>⌥</kbd> <kbd>⇧</kbd> <kbd>M</kbd>
 
 <details>
-<summary><b>Разрешения (необязательны)</b></summary>
+<summary><b>Permissions (optional)</b></summary>
 <br>
 
-- **Запись экрана** — Акко сам находит края окон, длину дока и иконки, видит поля ввода и меню, на которые можно встать. Он смотрит только на прозрачность пикселей, картинки нигде не сохраняются.
-- **Универсальный доступ** — чтобы лазить по папкам и иконкам рабочего стола.
+- **Screen Recording** — lets Akko find window edges, the Dock and icons himself, and spot input fields and menus he can stand on. He only looks at pixel transparency; nothing is ever saved.
+- **Accessibility** — lets him climb desktop folders and icons.
 
-Без разрешений он тоже работает: окна видны и так, а замеры запоминаются для каждой программы.
-Если в связке ключей есть сертификат разработчика, `build.sh` подписывает им сборку, и macOS не сбрасывает разрешения после каждой пересборки.
+He works without them too: windows are visible anyway, and measurements are remembered per app.
+If your keychain has a developer certificate, `build.sh` signs with it, so macOS keeps the permissions across rebuilds.
 
 </details>
 
@@ -109,79 +107,81 @@ cd mac && ./build.sh --run
 ```bash
 cd desktop
 npm install
-npm start            # запуск из исходников
-npm run dist:win     # установщик → desktop/dist/
+npm start            # run from source
+npm run dist:win     # installer → desktop/dist/
 ```
 
 > [!NOTE]
-> Сборки не подписаны: в Windows SmartScreen нажми «Подробнее» → «Выполнить в любом случае».
+> Builds are unsigned: in Windows SmartScreen click *More info* → *Run anyway*.
 
 ---
 
-## ⚙️ Настройки
+## ⚙️ Settings
 
-| Вкладка | Что внутри |
+| Tab | What's inside |
 |---|---|
-| **Акко** | размер (S / M / L / XL), язык фраз (English / Русский), экономия энергии, когда прятаться |
-| **Характер** | активность, болтливость, бегать за курсором, перерывы, сон ночью, настроение и кнопки ☕ 🍪 |
-| **Мир** | лазить по окнам и доку, реагировать на программы, доступ к записи экрана |
-| **Система** | запуск при входе, значок в строке меню |
+| **Akko** | size (S / M / L / XL), phrase language (English / Russian), power saving, when to hide |
+| **Character** | activity, chattiness, habits — and **Wellbeing**: energy, mood and fullness bars, *Throw food* and *Give coffee* buttons |
+| **World** | climb windows and the Dock, react to apps, Screen Recording access |
+| **System** | launch at login, menu bar icon |
 
-**Когда он прячется сам**
+**When he hides on his own**
 
-| Переключатель | Что делает |
+| Switch | What it does |
 |---|---|
-| Прятаться при видео и звонках | плеер, браузер с видео или звонок просит систему не гасить экран, и Акко уходит |
-| Прятаться в полноэкранных играх и презентациях | игра, Keynote / PowerPoint или видеоплеер на весь экран |
-| Прятаться при записи и показе экрана | **выключено** — во время записи (<kbd>⌘</kbd><kbd>⇧</kbd><kbd>5</kbd>, QuickTime, OBS) и демонстрации в Zoom Акко остаётся на экране, удобно для демо; **включено** — прячется от записи |
+| Hide during videos and calls | a player, a browser playing video or a call keeps the display awake, so he steps aside |
+| Hide in full-screen games and presentations | a game, Keynote / PowerPoint or a video player fills the screen |
+| Hide while recording or sharing the screen | **off** — he stays on screen while you record (<kbd>⌘</kbd><kbd>⇧</kbd><kbd>5</kbd>, QuickTime, OBS) or share in Zoom, great for demos; **on** — he hides from the recording |
 
-Обычные приложения на весь экран (мессенджер, редактор, браузер) — не повод прятаться: он остаётся рядом.
+Regular apps in full screen (a chat, an editor, a browser) are no reason to hide — he keeps you company.
 
 ---
 
-## ⚡ Производительность
+## ⚡ Performance
 
-MacBook Pro M3 Pro, проценты от одного ядра (приложение + процессы WebKit):
+MacBook Pro M3 Pro, percent of one core (app + WebKit processes):
 
-| Режим | Процессор | Память |
+| Mode | CPU | Memory |
 |---|:-:|:-:|
-| пауза / спрятан | ~0% | ~42 МБ |
-| стоит, дышит, моргает | ~2.5% | ~45 МБ |
-| ходит / бегает | ~5% | ~52 МБ |
-| обычная жизнь, все трюки подряд | ~7% (≈0.6% всего процессора) | ~52 МБ |
-| то же, экономия энергии (30 кадров) | ~4% | ~50 МБ |
+| paused / hidden | ~0% | ~42 MB |
+| standing, breathing, blinking | ~2.5% | ~45 MB |
+| walking / running | ~5% | ~52 MB |
+| normal life, tricks back to back | ~7% (≈0.6% of the whole CPU) | ~52 MB |
+| same, power saving (30 fps) | ~4% | ~50 MB |
 
 <details>
-<summary><b>Как это достигнуто</b></summary>
+<summary><b>How</b></summary>
 <br>
 
-- Всё, что двигается, — анимации, которые играет видеокарта, а не скрипт
-- Каждая рука, нога, глаз и аксессуар — отдельный слой; цикл ходьбы рассчитан заранее
-- «Кипящие» чернила — три готовые копии рисунка, которые сменяют друг друга
-- Эффекты (пыль, вспышки, мячик, реплики) создаются один раз и потом только показываются и прячутся
-- На экранах 120 Гц — не чаще 60 кадров (30 при экономии)
-- Во сне, при блокировке и на паузе всё полностью стоит
-- Курсор не опрашивается постоянно: приложение спит, пока мышь не сдвинется
+- Everything that moves is an animation played by the GPU, not by script
+- Every arm, leg, eye and accessory is its own layer; the walk cycle is computed ahead of time
+- The "boiling ink" is three pre-drawn copies of the drawing taking turns
+- Effects (dust, flashes, the ball, speech bubbles) are created once and then only shown and hidden
+- On 120 Hz screens animations are capped at 60 fps (30 when saving power)
+- Asleep, locked or paused, everything stops completely
+- The cursor is not polled all the time: the app sleeps until the mouse moves
+
+More in [DEVELOPMENT.md](DEVELOPMENT.md#performance--hard-won-lessons-dont-break-these).
 
 </details>
 
 ---
 
-## 🧩 Библиотека `akko`
+## 🧩 The `akko` library
 
-Тот же Акко — для любого сайта или веб-приложения. Без зависимостей.
+The same Akko for any website or web app. Zero dependencies.
 
 ```js
 import { createAkko } from "akko";
 
-const akko = createAkko();   // и всё — он уже бегает внизу страницы
+const akko = createAkko();   // that's it — he's already running along the bottom of the page
 ```
 
 <details>
-<summary><b>Без сборщика, React и все опции</b></summary>
+<summary><b>No bundler, React and all options</b></summary>
 <br>
 
-Одним тегом:
+With a single tag:
 
 ```html
 <script src="akko.global.js"></script>
@@ -196,79 +196,82 @@ import { Akko } from "akko/react";
 <Akko size={48} paused={false} onReady={(c) => (window.akko = c)} />
 ```
 
-Опции:
+Options:
 
 ```js
 createAkko({
-  size: 44,                                   // ширина в px
+  size: 44,                                   // width in px
   colors: { bg: "#faf8f2", ink: "#151513", accent: "#c2603f" },
-  targets: "[data-chelik], main h1, main h2", // на что можно запрыгивать ("" — ни на что)
-  page: document.querySelector("main"),       // что трясти при топоте (null — ничего)
-  avoid: ".chat-button",                      // не заходить за этот виджет
-  themeToggle: ".theme-switch",               // переключатель темы, который он может «нажать»
-  ink: true,                                  // дрожащие чернила: true | "lines" | "filter" | false
-  lowPower: false,                            // экономия: без чернил, 30 fps
+  lang: "en",                                 // "en" or "ru"
+  targets: "[data-chelik], main h1, main h2", // what he may jump on ("" — nothing)
+  page: document.querySelector("main"),       // what shakes when he stomps (null — nothing)
+  avoid: ".chat-button",                      // don't walk behind this widget
+  themeToggle: ".theme-switch",               // a theme switch he may "press"
+  ink: true,                                  // boiling ink: true | "lines" | "filter" | false
+  lowPower: false,                            // no ink wobble, 30 fps
   fps: 60,
-  greet: true,                                // помахать при появлении
+  greet: true,                                // wave hello on start
   autoStart: true,
-  trackPointer: true,                         // false — передавай курсор сам через pointer(x, y)
-  respectReducedMotion: true,                 // стоит на месте при «уменьшить движение»
+  trackPointer: true,                         // false — feed the cursor yourself with pointer(x, y)
+  respectReducedMotion: true,                 // stand still with "reduce motion"
   onAct: (name) => {},
+  onMood: ({ energy, mood, full }) => {},     // all 0…1
   onInteractive: (on) => {},
   onPerch: (on) => {},
 });
 ```
 
-Пометь элемент атрибутом `data-chelik` — Акко будет на нём сидеть, прыгать и лепить наклейки.
-`data-chelik-stomp` — он нажмёт на элемент, когда топнет по нему.
+Mark any element with `data-chelik` and Akko will sit on it, jump on it and slap stickers on it.
+`data-chelik-stomp` — he'll press the element when he stomps on it.
 
-Управление:
+Control:
 
 ```js
 akko.pause();  akko.resume();  akko.toggle();
 akko.hide();   akko.show();
-akko.play("jetpack");                 // трюк прямо сейчас; akko.play() — список всех
+akko.play("jetpack");                 // a trick right now; akko.play() lists them all
+akko.feed();                          // throw a snack — call it as often as you like
 akko.set({ size: 60, lowPower: true });
-akko.world([[id, 0, x, y, w, h], …]); // окна (0), иконки (1), док (2) для настольных приложений
+akko.world([[id, 0, x, y, w, h], …]); // windows (0), icons (1), Dock (2) for desktop apps
 akko.destroy();
 ```
 
-Разработка:
+Development:
 
 ```bash
 cd core && npm install && npm run build   # → core/dist
-python3 -m http.server -d core 5178       # демо: http://localhost:5178/demo.html
+python3 -m http.server -d core 5178       # demo: http://localhost:5178/demo.html
 ```
 
 </details>
 
 ---
 
-## 🛠 Как устроено
+## 🛠 How it works
 
 ```
-core/       библиотека akko — TypeScript, без зависимостей
-  src/engine.ts     поведение: трюки, ходьба, прыжки, бросок, характер
-  src/art.ts        рисунок: каждая часть — отдельный слой со своим SVG
-  src/chelik.css    позы и анимации
-  src/react.ts      обёртка <Akko />
-mac/        приложение macOS — Swift + системный WebKit
-  Sources/main.swift            оверлей, строка меню, хоткей, сон и батарея
-  Sources/SettingsWindow.swift  окно настроек (SwiftUI)
-  Sources/World.swift           окна, Dock и иконки → в страницу
-  Sources/AutoHide.swift        когда прятаться: видео, полный экран, запись
-  build.sh                      сборка .app (arm64 + x86_64) и .dmg
-desktop/    приложение Windows — Electron
-scripts/    иконки и синхронизация библиотеки
-HopBot.*    исходный React-компонент, с которого всё началось
+core/       the akko library — TypeScript, zero dependencies
+  src/engine.ts     behaviour: tricks, walking, jumping, throwing, feelings, food
+  src/art.ts        the drawing: every part is its own layer with its own SVG
+  src/chelik.css    poses and animations
+  src/react.ts      the <Akko /> wrapper
+mac/        the macOS app — Swift + the system WebKit
+  Sources/main.swift            overlay, menu bar, hotkey, sleep and battery
+  Sources/SettingsWindow.swift  settings window (SwiftUI)
+  Sources/World.swift           windows, Dock and icons → into the page
+  Sources/AutoHide.swift        when to hide: video, full screen, screen recording
+  build.sh                      builds the .app (arm64 + x86_64) and a .dmg
+desktop/    the Windows app — Electron
+scripts/    icons and library sync
+HopBot.*    the original React component it all started from
 ```
 
-Подробные заметки для разработки — в [ИНСТРУКЦИЯ.md](ИНСТРУКЦИЯ.md).
+Developer notes — architecture, performance rules, debugging hooks — are in [DEVELOPMENT.md](DEVELOPMENT.md).
 
 ---
 
 <div align="center">
 
-Сделано с ☕ — [@yahyagazizuly](https://github.com/yahyagazizuly) · [MIT](LICENSE)
+Made with ☕ by [@yahyagazizuly](https://github.com/yahyagazizuly) · [MIT](LICENSE)
 
 </div>

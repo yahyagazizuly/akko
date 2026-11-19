@@ -2,7 +2,7 @@
   "name": "akko-desktop",
   "productName": "Akko",
   "version": "0.1.0",
-  "description": "Акко бегает по рабочему столу",
+  "description": "Akko runs around your desktop",
   "main": "src/main.js",
   "private": true,
   "scripts": {

@@ -1,4 +1,4 @@
-/* Базовые стили рисунка (.la) и эффект «дрожащих чернил» */
+/* Base drawing styles (.la) and the "boiling ink" effect */
 .la { --d: 7s; --u: 0.42s; height: 100%; width: auto; max-width: 100%; color: var(--text); overflow: visible; }
 .la-hero { --d: 9s; --u: 0.5s; width: 100%; height: auto; }
 .la .i { stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }

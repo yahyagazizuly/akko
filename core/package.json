@@ -1,7 +1,7 @@
 {
   "name": "akko",
   "version": "0.1.0",
-  "description": "Акко — маленький чернильный человечек, который бегает, прыгает и хулиганит на экране. Без зависимостей, для любого сайта или приложения.",
+  "description": "Akko — a tiny ink-drawn buddy that runs, jumps and plays on your screen. Zero dependencies, for any website or app.",
   "type": "module",
   "main": "./dist/akko.js",
   "module": "./dist/akko.js",

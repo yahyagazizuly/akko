@@ -6,7 +6,7 @@
 .chelik-root.chelik-paused .rb-hit { pointer-events: none; }
 /* Everything but ink: "filter" — no noise filter (the costliest thing to draw), and each part gets its own layer. */
 .chelik-root.chelik-lite .rb-sticker svg { filter: none !important; animation: none !important; }
-/* Базовые стили рисунка (.la) и эффект «дрожащих чернил» */
+/* Base drawing styles (.la) and the "boiling ink" effect */
 .chelik-art { --d: 7s; --u: 0.42s; height: 100%; width: auto; max-width: 100%; color: var(--chelik-ink); overflow: visible; }
 .chelik-art .i { stroke: currentColor; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
 .chelik-art .i.b { stroke-width: 4.5; }
