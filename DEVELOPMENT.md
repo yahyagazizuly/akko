@@ -10,7 +10,8 @@ ball…). His eyes follow the cursor, and you can grab and throw him. He started
 
 1. **A library**, `core/` — zero dependencies, for any website or app.
 2. **A macOS app**, `mac/` — native (Swift + the system WebKit). **Done, installed, working.**
-3. **A Windows app**, `desktop/` — Electron. **Code written, not yet built or run on Windows.**
+3. **A Windows app**, `win/` — native (Rust + the system WebView2), feature for feature the same as the Mac app.
+   **Builds in CI; not yet run on a real Windows PC.**
 
 ## Layout
 
@@ -33,8 +34,15 @@ mac/             the macOS app
   Sources/FrameCap.swift        frame cap for animations (60, 30 when saving power) — eases WindowServer
   web/overlay.html, bridge.js   the page inside WebKit, the JS ↔ Swift bridge
   build.sh                      builds the .app (arm64 + x86_64) and a .dmg into mac/build/
-desktop/         Electron version (for Windows): main.js, preload.js, overlay.*
-scripts/         icons.py (icons: just the head, no antenna), sync-core.mjs (copies the library into desktop/)
+win/             the Windows app (Rust)
+  src/main.rs       overlay window, WebView2, tray menu, hotkey, sleep / lock / display, settings window, launch at login
+  src/world.rs      windows (front to back, visible frame from DWM), taskbar, desktop icons (IFolderView), new windows, toasts, apps opening / closing
+  src/senses.rs     power, away, typing, copying, dark mode, internet, music (media sessions); auto-hide signals
+  src/settings.rs   settings (%APPDATA%\Akko\settings.json), same keys as the Mac app
+  web/settings.html settings window (same tabs and controls as the SwiftUI one)
+  installer/akko.iss one-click Inno Setup installer (per user, installs WebView2 if missing)
+assets/          app and tray icons (shared)
+scripts/         icons.py (icons: just the head, no antenna)
 ```
 
 ## Commands
@@ -44,8 +52,8 @@ cd core && npm install && npm run build               # library → core/dist
 python3 -m http.server -d core 5178                   # demo: http://localhost:5178/demo.html
 cd mac && ./build.sh --run                            # build and run the macOS app
 ditto "mac/build/Akko.app" "/Applications/Akko.app"   # install
-cd desktop && npm install && npm start                # Electron
-cd desktop && npm run dist:win                        # Windows installer (untested)
+cargo build --release --manifest-path win/Cargo.toml  # Windows app (on Windows)
+cargo check --target x86_64-pc-windows-msvc --manifest-path win/Cargo.toml  # type-check it from a Mac
 ```
 
 ## How the macOS app works
@@ -100,6 +108,38 @@ cd desktop && npm run dist:win                        # Windows installer (untes
 - Power saving "Auto" = on battery or in Low Power Mode: 30 fps and no ink boil.
 - Settings: `defaults read dev.minichelik.mac`. While the app is running, change them only through the app itself:
   on quit it overwrites values written with `defaults write`.
+
+## How the Windows app works
+
+The same design as the Mac app, with Windows APIs in place of the macOS ones. The page (`mac/web/overlay.html`,
+`bridge.js`, the library) is the same file, built into the exe and served from `http://akko.localhost/`.
+
+- **Overlay**: a borderless, transparent, topmost tool window over the chosen monitor, one pixel short of the full
+  height (a topmost window covering all of it would count as a full-screen app: the taskbar would step back and
+  notifications would go quiet). `WS_EX_NOACTIVATE` and `WM_MOUSEACTIVATE → MA_NOACTIVATE`: clicking him never
+  takes focus. Clicks pass through (`WS_EX_TRANSPARENT`) except while the page says the cursor is over him.
+- **Cursor**: polled with `GetCursorPos` — 30×/s while it moves (15 when saving power), ~7×/s at rest. No raw input
+  and no hooks.
+- **World** (`world.rs`): `EnumWindows` front to back; visible, not minimised, not cloaked (other virtual desktops),
+  no tool windows; the visible frame from `DWMWA_EXTENDED_FRAME_BOUNDS` (no invisible border, no shadow — what the
+  Mac needed its "eyes" for). The taskbar is the Dock (kind 2) while it is on screen and nothing covers the whole
+  screen. Desktop icons come from Explorer's desktop view through the Shell (`IShellWindows` → `IFolderView`),
+  every 6 s. Same JSON as the Mac.
+- **Senses** (`senses.rs`): the app in front from a `SetWinEventHook(EVENT_SYSTEM_FOREGROUND)` callback (no polling);
+  music from Windows' media sessions (`GlobalSystemMediaTransportControlsSessionManager`); power from
+  `GetSystemPowerStatus`; away from `GetLastInputInfo`; typing = the last-input time moved while the cursor stood
+  still (no keyboard hook); copying from `GetClipboardSequenceNumber`; dark mode from the registry; internet from
+  `INetworkListManager`; Print Screen; toasts and the Snipping Tool from new windows.
+- **Auto-hide** (every 2 s): *video* = a non-music media session playing, or an app using the microphone (the
+  registry's CapabilityAccessManager "last used" times — no audio access); *full screen* = the front window fills
+  the monitor and is a game (D3D exclusive, or installed by Steam / Epic / Xbox…), a presentation or a video
+  player; *capture* = OBS, Zoom's share helper (`CptHost.exe`), the Snipping Tool recorder… running.
+- **System**: lock / unlock (`WTSRegisterSessionNotification`), sleep, display off (`GUID_CONSOLE_DISPLAY_STATE`),
+  monitor changes, power changes — through the overlay's window procedure. Hotkey `RegisterHotKey` Ctrl+Alt+Shift+M.
+  Launching Akko again posts a message to the running one, which opens the settings.
+- **WebView2** runs with background networking, the updater, translate and spell check off and a smaller JS heap;
+  its memory is trimmed (`MemoryUsageLevel::Low`) while he is paused or hidden. The settings window's web view is
+  destroyed when the window closes.
 
 ## Performance — hard-won lessons (don't break these!)
 

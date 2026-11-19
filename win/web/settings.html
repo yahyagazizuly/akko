@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Акко</title>
+<style>
+  :root {
+    --bg: #f3f3f3; --card: #ffffff; --line: #e5e5e5; --text: #1b1b1b; --dim: #6b6b6b; --seg: #e9e9e9; --seg-on: #0a7cff;
+    --seg-on-text: #fff; --btn: #f6f6f6; --btn-line: #dcdcdc; --track: #d4d4d4; --accent: #0a7cff; --ok: #1f9d55;
+    --meter: #e3e3e3; --shadow: 0 1px 2px rgba(0,0,0,.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #202020; --card: #2b2b2b; --line: #3a3a3a; --text: #f2f2f2; --dim: #a3a3a3; --seg: #333; --seg-on: #0a7cff;
+      --btn: #353535; --btn-line: #444; --track: #4a4a4a; --ok: #3ccf7a; --meter: #3d3d3d; --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.35 "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    -webkit-user-select: none; user-select: none; cursor: default; overflow: hidden; }
+  header { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  header img { width: 40px; height: 40px; border-radius: 9px; }
+  header .who { flex: 1; min-width: 0; }
+  header .name { font-weight: 600; font-size: 15px; }
+  header .status { color: var(--dim); font-size: 13px; }
+  .icon-btn { height: 30px; min-width: 34px; border: 1px solid var(--btn-line); background: var(--btn); color: var(--text); border-radius: 7px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 8px; font: inherit; }
+  .icon-btn:hover:not(:disabled) { filter: brightness(1.04); }
+  .icon-btn:disabled, .btn:disabled { opacity: .45; }
+  .switch { position: relative; width: 40px; height: 22px; flex: none; }
+  .switch input { appearance: none; margin: 0; width: 100%; height: 100%; border-radius: 11px; background: var(--track); transition: background .15s; outline: none; }
+  .switch input:checked { background: var(--accent); }
+  .switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff;
+    box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: transform .15s; }
+  .switch input:checked::after { transform: translateX(18px); }
+  .switch input:disabled { opacity: .45; }
+  .tabs { margin: 12px 16px 0; }
+  .seg { display: flex; background: var(--seg); border-radius: 8px; padding: 2px; gap: 2px; }
+  .seg button { flex: 1; border: 0; background: transparent; color: var(--text); font: inherit; padding: 5px 6px; border-radius: 6px; white-space: nowrap; }
+  .seg button.on { background: var(--seg-on); color: var(--seg-on-text); font-weight: 500; }
+  .seg button:not(.on):hover { background: rgba(127,127,127,.12); }
+  main { padding: 12px 16px 16px; }
+  .group { background: var(--card); border-radius: 10px; box-shadow: var(--shadow); border: 1px solid var(--line); padding: 0 12px; }
+  .group + .group { margin-top: 14px; }
+  .group-title { font-weight: 600; margin: 18px 4px 6px; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 7px 0; border-top: 1px solid var(--line); }
+  .row:first-child { border-top: 0; }
+  .row > .label { flex: 1; }
+  .row.stack { display: block; }
+  .row.stack .label { margin-bottom: 7px; }
+  .row .seg { flex: none; }
+  .row.stack .seg { width: 100%; }
+  .caption { color: var(--dim); font-size: 12px; padding: 8px 0 10px; border-top: 1px solid var(--line); }
+  .meter { display: flex; align-items: center; gap: 10px; }
+  .bar { width: 96px; height: 7px; border-radius: 4px; background: var(--meter); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 4px; transition: width .4s; }
+  .word { width: 104px; color: var(--dim); white-space: nowrap; }
+  .buttons { display: flex; gap: 8px; }
+  .btn { border: 1px solid var(--btn-line); background: var(--btn); color: var(--text); border-radius: 7px; padding: 6px 12px; font: inherit; display: inline-flex; gap: 6px; align-items: center; }
+  .btn:hover:not(:disabled) { filter: brightness(1.05); }
+  .ok { color: var(--ok); }
+  .kbd { color: var(--dim); }
+  .footer { display: flex; align-items: center; justify-content: space-between; }
+  .pop { position: fixed; z-index: 10; right: 96px; top: 54px; width: 230px; max-height: 330px; overflow-y: auto; background: var(--card);
+    border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.22); padding: 4px; display: none; }
+  .pop.open { display: block; }
+  .pop button { display: block; width: 100%; text-align: left; border: 0; background: transparent; color: var(--text); font: inherit; padding: 6px 10px; border-radius: 5px; }
+  .pop button:hover { background: var(--accent); color: #fff; }
+  .pop hr { border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <img src="icon.png" alt="">
+  <div class="who"><div class="name">Акко</div><div class="status" id="status">…</div></div>
+  <button class="icon-btn" id="tricksBtn" title="Трюки"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.8 5.2L19 9l-5.2 1.8L12 16l-1.8-5.2L5 9l5.2-1.8zM19 14l.9 2.6 2.6.9-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-.9zM5 15l.7 1.8 1.8.7-1.8.7L5 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg><svg width="9" height="9" viewBox="0 0 10 10" fill="currentColor"><path d="M1 3l4 4 4-4z"/></svg></button>
+  <button class="icon-btn" id="pauseBtn" title="Пауза"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="5" height="16" rx="1.5"/><rect x="14" y="4" width="5" height="16" rx="1.5"/></svg></button>
+  <label class="switch" title="Показать / спрятать"><input type="checkbox" data-k="visible"></label>
+</header>
+<div class="pop" id="pop"></div>
+
+<div class="tabs"><div class="seg" id="tabs">
+  <button data-tab="0">Акко</button><button data-tab="3">Характер</button><button data-tab="1">Мир</button><button data-tab="2">Система</button>
+</div></div>
+
+<main>
+  <!-- Акко -->
+  <section data-page="0">
+    <div class="group">
+      <div class="row"><span class="label">Размер</span>
+        <div class="seg" data-k="size" data-num><button data-v="32">S</button><button data-v="44">M</button><button data-v="60">L</button><button data-v="84">XL</button></div></div>
+      <div class="row"><span class="label">Язык фраз</span>
+        <div class="seg" data-k="lang"><button data-v="en">English</button><button data-v="ru">Русский</button></div></div>
+      <div class="row"><span class="label">Экономия</span>
+        <div class="seg" data-k="power"><button data-v="auto">Авто</button><button data-v="on">Всегда</button><button data-v="off">Выкл</button></div></div>
+      <div class="row"><span class="label">Прятаться при видео и звонках</span><label class="switch"><input type="checkbox" data-k="hideVideo"></label></div>
+      <div class="row"><span class="label">Прятаться в полноэкранных играх и презентациях</span><label class="switch"><input type="checkbox" data-k="hideFullScreen"></label></div>
+      <div class="row"><span class="label">Прятаться при записи и показе экрана</span><label class="switch"><input type="checkbox" data-k="hideCapture"></label></div>
+      <div class="caption">Если выключено, во время записи экрана (OBS, «Ножницы») и демонстрации в Zoom он остаётся на виду.</div>
+    </div>
+  </section>
+
+  <!-- Характер -->
+  <section data-page="3" hidden>
+    <div class="group">
+      <div class="row stack"><div class="label">Активность</div>
+        <div class="seg" data-k="activity" data-num><button data-v="0">Спокойный</button><button data-v="1">Обычный</button><button data-v="2">Энергичный</button></div></div>
+      <div class="row"><span class="label">Болтливость</span>
+        <div class="seg" data-k="chatty" data-num><button data-v="0">Молчун</button><button data-v="1">Обычно</button><button data-v="2">Болтун</button></div></div>
+      <div class="row"><span class="label">Бегать за курсором и звать поиграть</span><label class="switch"><input type="checkbox" data-k="follow"></label></div>
+      <div class="row"><span class="label">Напоминать о перерыве</span><label class="switch"><input type="checkbox" data-k="breaks"></label></div>
+      <div class="row"><span class="label">Засыпать ночью</span><label class="switch"><input type="checkbox" data-k="nightSleep"></label></div>
+    </div>
+    <div class="group-title">Самочувствие</div>
+    <div class="group">
+      <div class="row"><span class="label">Энергия</span><div class="meter"><div class="bar"><i id="mEnergy" style="background:#f2c94c"></i></div><span class="word" id="wEnergy"></span></div></div>
+      <div class="row"><span class="label">Настроение</span><div class="meter"><div class="bar"><i id="mMood" style="background:#eb5a78"></i></div><span class="word" id="wMood"></span></div></div>
+      <div class="row"><span class="label">Сытость</span><div class="meter"><div class="bar"><i id="mFull" style="background:#f2994a"></i></div><span class="word" id="wFull"></span></div></div>
+      <div class="row"><div class="buttons">
+        <button class="btn" id="feedBtn" data-live>🥕 Бросить еду</button>
+        <button class="btn" id="coffeeBtn" data-live>☕ Дать кофе</button>
+      </div></div>
+      <div class="caption">Трюки тратят энергию, сон и кофе её возвращают. Еду можно бросать сколько угодно: он ест, пока не наестся, а что не успел съесть — через 5 секунд исчезнет. Сытость проходит за несколько часов. Внимание и еда поднимают настроение, скука его портит.</div>
+    </div>
+  </section>
+
+  <!-- Мир -->
+  <section data-page="1" hidden>
+    <div class="group">
+      <div class="row"><span class="label">Лазить по окнам и панели задач</span><label class="switch"><input type="checkbox" data-k="climb"></label></div>
+      <div class="row"><span class="label">Реагировать на программы и события</span><label class="switch"><input type="checkbox" data-k="senses"></label></div>
+      <div class="row"><span class="label">Видеть края, панель задач и иконки</span><span class="ok">👁 видит</span></div>
+      <div class="caption">На Windows разрешения не нужны: края окон, панель задач и иконки рабочего стола он видит сам. Картинку экрана он не смотрит и ничего не сохраняет.</div>
+    </div>
+  </section>
+
+  <!-- Система -->
+  <section data-page="2" hidden>
+    <div class="group">
+      <div class="row"><span class="label">Запускать при входе в систему</span><label class="switch"><input type="checkbox" id="login"></label></div>
+      <div class="row"><span class="label">Значок в трее</span><label class="switch"><input type="checkbox" data-k="menuIcon"></label></div>
+      <div class="row"><span class="label">Показать / спрятать</span><span class="kbd" id="hotkey"></span></div>
+      <div class="row footer"><span class="caption" style="border:0;padding:0">Настройки — запусти приложение ещё раз</span><button class="btn" id="quitBtn">Выйти</button></div>
+    </div>
+  </section>
+</main>
+
+<script>
+(() => {
+  const PAUSE = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="4" width="5" height="16" rx="1.5"/><rect x="14" y="4" width="5" height="16" rx="1.5"/></svg>', PLAY = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12-7.5a1 1 0 0 0 0-1.72l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
+  const send = (m) => { try { window.ipc.postMessage(JSON.stringify(m)); } catch {} };
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  let S = {};
+  let tab = 0;
+  try { tab = +(localStorage.getItem("tab") || 0); } catch {}
+
+  const fit = () => requestAnimationFrame(() => send({ t: "height", h: Math.ceil(document.body.getBoundingClientRect().height) }));
+  const showTab = (t) => {
+    tab = t;
+    try { localStorage.setItem("tab", String(t)); } catch {}
+    $$("#tabs button").forEach((b) => b.classList.toggle("on", +b.dataset.tab === t));
+    $$("section[data-page]").forEach((s) => (s.hidden = +s.dataset.page !== t));
+    fit();
+  };
+  $$("#tabs button").forEach((b) => (b.onclick = () => showTab(+b.dataset.tab)));
+
+  // Switches and segmented pickers bound to a setting.
+  $$("input[data-k]").forEach((i) => (i.onchange = () => send({ t: "set", k: i.dataset.k, v: i.checked })));
+  $$(".seg[data-k]").forEach((g) => $$("button", g).forEach((b) => (b.onclick = () => {
+    const v = "num" in g.dataset ? +b.dataset.v : b.dataset.v;
+    send({ t: "set", k: g.dataset.k, v });
+    $$("button", g).forEach((x) => x.classList.toggle("on", x === b));
+  })));
+  $("#login").onchange = (e) => send({ t: "login", v: e.target.checked });
+  $("#pauseBtn").onclick = () => send({ t: "set", k: "paused", v: !S.paused });
+  $("#feedBtn").onclick = () => send({ t: "feed" });
+  $("#coffeeBtn").onclick = () => send({ t: "play", n: "coffee" });
+  $("#quitBtn").onclick = () => send({ t: "quit" });
+
+  const pop = $("#pop");
+  $("#tricksBtn").onclick = (e) => { e.stopPropagation(); pop.classList.toggle("open"); };
+  document.addEventListener("click", () => pop.classList.remove("open"));
+  const fillTricks = (acts) => {
+    pop.innerHTML = "";
+    const add = (label, n) => { const b = document.createElement("button"); b.textContent = label; b.onclick = () => { send({ t: "play", n }); pop.classList.remove("open"); }; pop.appendChild(b); };
+    add("Случайный", null);
+    pop.appendChild(document.createElement("hr"));
+    acts.forEach(([n, l]) => add(l, n));
+  };
+
+  let actsKey = "";
+  window.ui = {
+    state(s) {
+      S = s;
+      $("#status").textContent = s.status;
+      $$("input[data-k]").forEach((i) => (i.checked = !!s[i.dataset.k]));
+      $$(".seg[data-k]").forEach((g) => $$("button", g).forEach((b) => b.classList.toggle("on", String(s[g.dataset.k]) === b.dataset.v)));
+      $("#login").checked = !!s.login;
+      $("#hotkey").textContent = s.hotkey;
+      $("#pauseBtn").innerHTML = s.paused ? PLAY : PAUSE;
+      $("#pauseBtn").disabled = !s.visible;
+      $("#tricksBtn").disabled = !s.running;
+      $$("[data-live]").forEach((b) => (b.disabled = !s.running));
+      const set = (id, v) => ($(id).style.width = Math.round(Math.max(0, Math.min(1, v)) * 100) + "%");
+      set("#mEnergy", s.energy); set("#mMood", s.mood); set("#mFull", s.full);
+      $("#wEnergy").textContent = s.energyText; $("#wMood").textContent = s.moodText; $("#wFull").textContent = s.fullText;
+      const k = s.acts.map((a) => a[0]).join();
+      if (k !== actsKey) { actsKey = k; fillTricks(s.acts); }
+    },
+  };
+  addEventListener("contextmenu", (e) => e.preventDefault());
+  showTab(tab);
+  send({ t: "ready" });
+})();
+</script>
+</body>
+</html>

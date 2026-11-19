@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="desktop/assets/icon.png" width="128" height="128" alt="Akko">
+<img src="assets/icon.png" width="128" height="128" alt="Akko">
 
 # Akko
 
@@ -10,10 +10,11 @@ He runs, jumps, climbs your windows, flies a jetpack, gets hungry, falls asleep 
 <br>
 
 ![macOS](https://img.shields.io/badge/macOS-13%2B-111?logo=apple&logoColor=white)
-![Windows](https://img.shields.io/badge/Windows-Electron-0078D4?logo=windows&logoColor=white)
-![Swift](https://img.shields.io/badge/Swift-native-F05138?logo=swift&logoColor=white)
+![Windows](https://img.shields.io/badge/Windows-10%2F11-0078D4?logo=windows&logoColor=white)
+![Swift](https://img.shields.io/badge/Swift-macOS-F05138?logo=swift&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-Windows-B7410E?logo=rust&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-library-3178C6?logo=typescript&logoColor=white)
-![Size](https://img.shields.io/badge/app-~1%20MB-2ea44f)
+![Size](https://img.shields.io/badge/app-~1–3%20MB-2ea44f)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 <br>
@@ -129,14 +130,16 @@ If your keychain has a developer certificate, `build.sh` signs with it, so macOS
 
 </details>
 
-### Windows — Electron
+### Windows — native app
 
 ```bash
-cd desktop
-npm install
-npm start            # run from source
-npm run dist:win     # installer → desktop/dist/
+cd core && npm install && npm run build && cd ..
+cargo build --release --manifest-path win/Cargo.toml   # → win/target/release/akko.exe
 ```
+
+Rust + the system **WebView2** (built into Windows 10/11) — the same idea as the Mac app: a tiny native shell and the
+system web engine, no bundled browser. The installer (`win/installer/akko.iss`, Inno Setup) installs for the current
+user without admin rights, adds shortcuts, installs WebView2 if it's missing and starts Akko.
 
 ### Releases
 
@@ -154,8 +157,10 @@ git tag v0.1.1 && git push origin v0.1.1
 |---|---|
 | **Akko** | size (S / M / L / XL), phrase language (English / Russian), power saving, when to hide |
 | **Character** | activity, chattiness, habits — and **Wellbeing**: energy, mood and fullness bars, *Throw food* and *Give coffee* buttons |
-| **World** | climb windows and the Dock, react to apps, Screen Recording access |
-| **System** | launch at login, menu bar icon |
+| **World** | climb windows and the Dock / taskbar, react to apps, Screen Recording access (macOS only) |
+| **System** | launch at login, menu bar / tray icon |
+
+Both apps have the same settings window. On Windows: tray icon → *Settings…* (or launch Akko again); show / hide with <kbd>Ctrl</kbd> <kbd>Alt</kbd> <kbd>⇧</kbd> <kbd>M</kbd>.
 
 **When he hides on his own**
 
@@ -163,7 +168,7 @@ git tag v0.1.1 && git push origin v0.1.1
 |---|---|
 | Hide during videos and calls | a player, a browser playing video or a call keeps the display awake, so he steps aside |
 | Hide in full-screen games and presentations | a game, Keynote / PowerPoint or a video player fills the screen |
-| Hide while recording or sharing the screen | **off** — he stays on screen while you record (<kbd>⌘</kbd><kbd>⇧</kbd><kbd>5</kbd>, QuickTime, OBS) or share in Zoom, great for demos; **on** — he hides from the recording |
+| Hide while recording or sharing the screen | **off** — he stays on screen while you record (<kbd>⌘</kbd><kbd>⇧</kbd><kbd>5</kbd>, QuickTime, OBS, the Snipping Tool) or share in Zoom, great for demos; **on** — he hides from the recording |
 
 Regular apps in full screen (a chat, an editor, a browser) are no reason to hide — he keeps you company.
 
@@ -293,8 +298,14 @@ mac/        the macOS app — Swift + the system WebKit
   Sources/World.swift           windows, Dock and icons → into the page
   Sources/AutoHide.swift        when to hide: video, full screen, screen recording
   build.sh                      builds the .app (arm64 + x86_64) and a .dmg
-desktop/    the Windows app — Electron
-scripts/    icons and library sync
+win/        the Windows app — Rust + the system WebView2
+  src/main.rs                   overlay, tray, hotkey, settings window, sleep / lock / display
+  src/world.rs                  windows, taskbar and desktop icons → into the page
+  src/senses.rs                 apps, music, power, typing, and when to hide
+  web/settings.html             settings window (same as on the Mac)
+  installer/akko.iss            one-click installer (Inno Setup)
+assets/     app and tray icons
+scripts/    icon drawing
 HopBot.*    the original React component it all started from
 ```
 

@@ -1,0 +1,26 @@
+[package]
+name = "akko"
+version = "0.2.0"
+description = "Akko — a tiny ink-drawn buddy who lives on your screen"
+license = "MIT"
+edition = "2024"
+build = "build.rs"
+
+[dependencies]
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+tao = "0.37.3"
+tray-icon = "0.26.1"
+windows = { version = "0.62.2", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Dwm", "Win32_Graphics_Gdi", "Win32_System_Threading", "Win32_System_ProcessStatus", "Win32_System_Diagnostics_ToolHelp", "Win32_System_Power", "Win32_System_SystemInformation", "Win32_System_RemoteDesktop", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_System_Com", "Win32_System_Ole", "Win32_System_Variant", "Win32_System_Registry", "Win32_UI_Input_KeyboardAndMouse", "Win32_UI_Accessibility", "Win32_System_DataExchange", "Win32_Storage_FileSystem", "Win32_System_Pipes", "Win32_System_IO", "Win32_Security", "Win32_Networking_NetworkListManager", "Win32_UI_HiDpi", "Media_Control", "Foundation", "Win32_System_LibraryLoader"] }
+wry = "0.57.3"
+
+[build-dependencies]
+winresource = "0.1.34"
+
+# Small and fast: one optimised unit, no unwinding, no symbols.
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

@@ -1,6 +1,11 @@
-// Glue between the native macOS shell and the Akko library (loaded before this as window.Akko).
+// Glue between the native shell (macOS: WebKit, Windows: WebView2) and the Akko library (loaded before this as window.Akko).
 (() => {
-  const post = (m) => { try { window.webkit.messageHandlers.desk.postMessage(m); } catch { /* not in the app */ } };
+  const post = (m) => {
+    try {
+      if (window.webkit) window.webkit.messageHandlers.desk.postMessage(m);
+      else if (window.ipc) window.ipc.postMessage(JSON.stringify(m));
+    } catch { /* not in the app */ }
+  };
   const { createChelik, FLOOR_ACTS, DESK_ACTS } = window.Akko;
 
   const chelik = createChelik({

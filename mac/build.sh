@@ -22,11 +22,11 @@ echo "→ resources"
 cp web/overlay.html web/bridge.js "$ROOT/core/dist/akko.global.js" "$APP/Contents/Resources/web/"
 # The icons are checked in; redrawing them needs Pillow, which is optional (only Xcode CLT + Node are required).
 python3 "$ROOT/scripts/icons.py" >/dev/null 2>&1 || echo "  (icons: Pillow not found, using the checked-in ones)"
-cp "$ROOT/desktop/assets/trayTemplate.png" "$ROOT/desktop/assets/trayTemplate@2x.png" "$APP/Contents/Resources/"
+cp "$ROOT/assets/trayTemplate.png" "$ROOT/assets/trayTemplate@2x.png" "$APP/Contents/Resources/"
 ICONSET=build/icon.iconset && mkdir -p "$ICONSET"
 for s in 16 32 128 256 512; do
-  sips -z $s $s "$ROOT/desktop/assets/icon.png" --out "$ICONSET/icon_${s}x${s}.png" >/dev/null
-  sips -z $((s*2)) $((s*2)) "$ROOT/desktop/assets/icon.png" --out "$ICONSET/icon_${s}x${s}@2x.png" >/dev/null
+  sips -z $s $s "$ROOT/assets/icon.png" --out "$ICONSET/icon_${s}x${s}.png" >/dev/null
+  sips -z $((s*2)) $((s*2)) "$ROOT/assets/icon.png" --out "$ICONSET/icon_${s}x${s}@2x.png" >/dev/null
 done
 iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/AppIcon.icns" && rm -rf "$ICONSET"
 

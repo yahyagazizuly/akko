@@ -2,7 +2,7 @@
 from PIL import Image, ImageDraw
 import os
 
-OUT = os.path.join(os.path.dirname(__file__), "..", "desktop", "assets")
+OUT = os.path.join(os.path.dirname(__file__), "..", "assets")
 INK, BG, CLAY = (21, 21, 19, 255), (250, 248, 242, 255), (194, 96, 63, 255)
 
 def head(size, ink, fill, pad=0.08, eyes=None, ss=8):
