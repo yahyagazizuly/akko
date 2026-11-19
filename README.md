@@ -301,6 +301,7 @@ mac/        the macOS app — Swift + the system WebKit
 win/        the Windows app — Rust + the system WebView2
   src/main.rs                   overlay, tray, hotkey, settings window, sleep / lock / display
   src/world.rs                  windows, taskbar and desktop icons → into the page
+  src/ledges.rs                 input boxes, toolbars, menus inside windows to stand on
   src/senses.rs                 apps, music, power, typing, and when to hide
   web/settings.html             settings window (same as on the Mac)
   installer/akko.iss            one-click installer (Inno Setup)

@@ -4,6 +4,7 @@
 
 #![windows_subsystem = "windows"]
 
+mod ledges;
 mod senses;
 mod settings;
 mod util;
@@ -816,8 +817,10 @@ fn main() {
     let senses_ctl = Arc::new(Mutex::new(senses::Control { frame, ..Default::default() }));
     let cursor_ctl = Arc::new(Mutex::new(CursorCtl { frame, ..Default::default() }));
     {
+        let ledge_shared = Arc::new(Mutex::new(ledges::Shared::default()));
+        ledges::spawn(ledge_shared.clone());
         let p = proxy.clone();
-        world::spawn(world_ctl.clone(), move |o| {
+        world::spawn(world_ctl.clone(), ledge_shared, move |o| {
             let _ = p.send_event(match o {
                 world::Out::World(j) => UserEvent::World(j),
                 world::Out::Sense(j) => UserEvent::Sense(j),

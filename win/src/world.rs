@@ -5,6 +5,7 @@
 // Everything here is public window information: no permission is needed. The visible frame comes from DWM
 // (without the invisible resize border and the shadow), which is what the Mac app needed its "eyes" for.
 
+use crate::ledges;
 use crate::util::{self, Frame, Rect};
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
@@ -39,12 +40,13 @@ pub enum Out {
     Sense(String),
 }
 
-pub fn spawn(ctl: Arc<Mutex<Control>>, send: impl Fn(Out) + Send + 'static) {
+pub fn spawn(ctl: Arc<Mutex<Control>>, ledges: Arc<Mutex<ledges::Shared>>, send: impl Fn(Out) + Send + 'static) {
     std::thread::spawn(move || {
         unsafe { let _ = CoInitializeEx(None, COINIT_APARTMENTTHREADED); }
         let mut w = World::default();
         loop {
             let c = ctl.lock().unwrap().clone();
+            ledges.lock().unwrap().on = c.every_ms > 0;
             if c.every_ms == 0 {
                 w.last.clear();
                 w.last_ids = None;
@@ -55,7 +57,7 @@ pub fn spawn(ctl: Arc<Mutex<Control>>, send: impl Fn(Out) + Send + 'static) {
                 w.last.clear();
                 ctl.lock().unwrap().resend = false;
             }
-            let (json, news) = w.look(&c.frame);
+            let (json, news) = w.look(&c.frame, &ledges);
             if json != w.last {
                 w.last = json.clone();
                 send(Out::World(json));
@@ -78,6 +80,9 @@ struct World {
     started: Option<Instant>,
     /// Apps with windows on the last look, by process: to notice apps opening and closing.
     apps: HashMap<u32, String>,
+    /// Ledges already given an id: which window they are in and where in it, so they keep their id between looks.
+    known: Vec<(i64, isize, Rect)>,
+    next_ledge: i64,
 }
 
 struct Win {
@@ -112,7 +117,7 @@ impl World {
         e
     }
 
-    fn look(&mut self, f: &Frame) -> (String, Vec<String>) {
+    fn look(&mut self, f: &Frame, ledge_shared: &Arc<Mutex<ledges::Shared>>) -> (String, Vec<String>) {
         let started = *self.started.get_or_insert_with(Instant::now);
         let me = std::process::id();
         let mut hwnds: Vec<HWND> = Vec::with_capacity(256);
@@ -127,6 +132,8 @@ impl World {
         let mut now_apps: HashMap<u32, String> = HashMap::new();
         let fresh = |ids: &Option<HashSet<isize>>, id: isize| ids.as_ref().is_some_and(|s| !s.contains(&id));
         let mut wins: Vec<Win> = Vec::new();
+        // Windows that can hold ledges, front to back (pop-up menus marked floating), and where each one is.
+        let mut ledge_wins: Vec<ledges::Win> = Vec::new();
 
         for hwnd in hwnds {
             unsafe {
@@ -163,6 +170,11 @@ impl World {
                     news.push(serde_json::json!({"t": "shot"}));
                 }
             }
+            // Pop-up menus (classic and Windows 11 ones): their top is a ledge, in front of everything.
+            if (w.class == "#32768" || w.class.contains("Popup") || w.class == "Microsoft.UI.Content.PopupWindowSiteBridge") && p.intersects(&bounds) {
+                ledge_wins.push(ledges::Win { id, rect: w.rect, floating: true });
+                continue;
+            }
             // Only normal app windows from here: no system surfaces, tool palettes or invisible helpers.
             if matches!(w.class.as_str(), "Progman" | "WorkerW" | "Shell_TrayWnd" | "Shell_SecondaryTrayWnd" | "Windows.UI.Core.CoreWindow" | "XamlExplorerHostIslandWindow" | "TopLevelWindowForOverflowXamlIsland" | "NotifyIconOverflowWindow") {
                 continue;
@@ -188,6 +200,7 @@ impl World {
                 news.push(serde_json::json!({"t": "window", "c": k, "id": id, "x": p.x, "y": p.y, "w": p.w, "h": p.h}));
             }
             out.push([id as i64, 0, p.x as i64, p.y as i64, p.w as i64, p.h as i64, 0]);
+            ledge_wins.push(ledges::Win { id, rect: w.rect, floating: false });
         }
 
         // Apps opening (not the ones starting at login, right after him) and closing.
@@ -221,6 +234,7 @@ impl World {
             }
         }
 
+        let mut taken: Vec<Rect> = out.iter().filter(|a| a[1] == 2).map(|a| Rect { x: a[2] as i32 - 10, y: a[3] as i32 - 20, w: a[4] as i32 + 20, h: a[5] as i32 + 20 }).collect();
         // Desktop icons, asked from Explorer every few seconds (a busy Explorer must not slow down every look).
         if self.icons_at.is_none_or(|t| t.elapsed() > Duration::from_secs(6)) {
             self.icons = desktop_icons(f.scale).unwrap_or_default();
@@ -230,8 +244,46 @@ impl World {
             let p = f.page(r);
             if p.intersects(&bounds) {
                 out.push([-1 - i as i64, 1, p.x as i64, p.y as i64, p.w as i64, p.h as i64, 0]);
+                taken.push(p);
             }
         }
+
+        // Ledges found inside the windows (ledges.rs), moved along with their windows since; a window that changed
+        // size is left out until it is looked at again, and one that went away takes its ledges with it.
+        let found = {
+            let mut l = ledge_shared.lock().unwrap();
+            l.windows = ledge_wins.clone();
+            l.scale = f.scale;
+            l.ledges.clone()
+        };
+        if self.next_ledge == 0 {
+            self.next_ledge = -3000;
+        }
+        let mut now_known: Vec<(i64, isize, Rect)> = Vec::new();
+        for l in found {
+            let Some(w) = ledge_wins.iter().find(|w| w.id == l.owner) else { continue };
+            if (w.rect.w, w.rect.h) != l.owner_size {
+                continue;
+            }
+            let abs = Rect { x: w.rect.x + l.rel.x, y: w.rect.y + l.rel.y, w: l.rel.w, h: 4 };
+            let p = f.page(&abs);
+            if p.w < 40 || !p.intersects(&bounds) || taken.iter().any(|t| t.intersects(&p)) {
+                continue;
+            }
+            // Keep the id it had: same window, about the same place in it.
+            let id = self
+                .known
+                .iter()
+                .find(|(kid, owner, rel)| *owner == l.owner && (rel.y - l.rel.y).abs() <= 4 && rel.x < l.rel.right() && l.rel.x < rel.right() && !now_known.iter().any(|n| n.0 == *kid))
+                .map(|k| k.0)
+                .unwrap_or_else(|| {
+                    self.next_ledge -= 1;
+                    self.next_ledge
+                });
+            now_known.push((id, l.owner, l.rel));
+            out.push([id, 3, p.x as i64, p.y as i64, p.w as i64, 4, if l.floating { -1 } else { l.owner as i64 }]);
+        }
+        self.known = now_known;
 
         // Only once things have settled (a first look shows every window at once).
         let news = if news.len() <= 2 { news.into_iter().map(|n| n.to_string()).collect() } else { Vec::new() };

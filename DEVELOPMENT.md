@@ -37,6 +37,7 @@ mac/             the macOS app
 win/             the Windows app (Rust)
   src/main.rs       overlay window, WebView2, tray menu, hotkey, sleep / lock / display, settings window, launch at login
   src/world.rs      windows (front to back, visible frame from DWM), taskbar, desktop icons (IFolderView), new windows, toasts, apps opening / closing
+  src/ledges.rs     ledges inside windows and on pop-up menus (UI Automation)
   src/senses.rs     power, away, typing, copying, dark mode, internet, music (media sessions); auto-hide signals
   src/settings.rs   settings (%APPDATA%\Akko\settings.json), same keys as the Mac app
   web/settings.html settings window (same tabs and controls as the SwiftUI one)
@@ -125,6 +126,12 @@ The same design as the Mac app, with Windows APIs in place of the macOS ones. Th
   Mac needed its "eyes" for). The taskbar is the Dock (kind 2) while it is on screen and nothing covers the whole
   screen. Desktop icons come from Explorer's desktop view through the Shell (`IShellWindows` → `IFolderView`),
   every 6 s. Same JSON as the Mac.
+- **Ledges** (`ledges.rs`, kind 3, as on the Mac): the top edges of input boxes, toolbars, tab strips, lists,
+  panels and wide buttons inside the front windows, from **UI Automation** (exact control frames, no permission, no
+  pixels), plus pop-up menus (`on` = -1). Web pages are not walked into (browsers would switch on their whole
+  accessibility machinery), so in a browser he uses the toolbar and the address bar. A window is walked when new,
+  resized, or every 8 s (at most 3 windows per second, 400 controls / 250 ms each); in between its ledges ride along
+  with it and keep their ids.
 - **Senses** (`senses.rs`): the app in front from a `SetWinEventHook(EVENT_SYSTEM_FOREGROUND)` callback (no polling);
   music from Windows' media sessions (`GlobalSystemMediaTransportControlsSessionManager`); power from
   `GetSystemPowerStatus`; away from `GetLastInputInfo`; typing = the last-input time moved while the cursor stood

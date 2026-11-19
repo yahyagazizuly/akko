@@ -1,6 +1,6 @@
 {
   "name": "akko",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Akko — a tiny ink-drawn buddy that runs, jumps and plays on your screen. Zero dependencies, for any website or app.",
   "type": "module",
   "main": "./dist/akko.js",
