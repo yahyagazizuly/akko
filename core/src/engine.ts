@@ -45,8 +45,10 @@ export type EngineCtx = {
   onAct: (name: string) => void;
   /** His character, set by the host and read live (see Traits). */
   traits: Traits;
-  /** Called when his energy or mood changes noticeably (both 0…1). */
-  onMood: (m: { energy: number; mood: number }) => void;
+  /** Called when his energy, mood or fullness changes noticeably (all 0…1). */
+  onMood: (m: { energy: number; mood: number; full: number }) => void;
+  /** Food from the host: `drop` is set by the engine and throws one snack onto the floor. */
+  pantry: { drop?: () => void };
   /** The desktop around him, fed by the host (see WorldBlock). `changed` is set by the engine. */
   world: { blocks: WorldBlock[] | null; changed?: () => void };
   /** What is going on around him, fed by the host (see Sense). `on` is set by the engine; `state` outlives it. */
@@ -153,6 +155,9 @@ const EN: Phrases = {
   charge: ["⚡ yummy!", "mmm, energy", "charging up!", "⚡⚡⚡"],
   unplug: ["hey, give it back!", "what about me?", "oh, the cable"],
   tired: ["I need a recharge…", "battery's low", "so tired…"],
+  missed: ["oops!", "oh no, my snack!", "too slow 😅", "hey, come back!"],
+  hungry: ["I'm hungry… 🍪", "got any snacks?", "my tummy is rumbling", "is it lunchtime?"],
+  stuffed: ["I'm stuffed! 🫃", "no more, I'm full", "can't eat another bite", "maybe later…"],
   cheese: ["cheese! 📸", "I'm photogenic", "take another!", "my good side"],
   sleepy: ["you left?", "nap time then", "so quiet…"],
   zzz: ["zzz", "z z z", "zZz"],
@@ -274,6 +279,9 @@ const RU: Phrases = {
   charge: ["⚡ вкусно!", "ммм, энергия", "заряжаюсь!", "⚡⚡⚡"],
   unplug: ["эй, зарядку верни!", "а как же я?", "ой, провод"],
   tired: ["мне бы подзарядиться…", "батарейка садится", "сил нет…"],
+  missed: ["упс!", "ой, не успел!", "эх, моя вкусняшка…", "ой-ой 😅"],
+  hungry: ["я проголодался… 🍪", "есть что-нибудь вкусненькое?", "в животе урчит", "не пора ли обедать?"],
+  stuffed: ["я наелся! 🫃", "всё, больше не лезет", "ни кусочка больше", "может, потом…"],
   cheese: ["сыр! 📸", "я фотогеничный", "сними ещё!", "с лучшей стороны"],
   sleepy: ["ушёл?", "ну я тогда посплю", "тишина…"],
   zzz: ["хррр", "z z z", "zZz"],
@@ -2370,40 +2378,6 @@ export function startEngine(ctx: EngineCtx): () => void {
       if (k === "valentine") hearts(4);
       await hold(2000);
     } };
-    /** A cookie falls from the sky: he runs over and eats it. (Also "Give a treat" in the app's menu.) */
-    A.treat = { w: 0.3, ok: () => grounded() && !onDock(), run: async () => {
-      const c = document.createElement("div");
-      c.className = "rb-cookie";
-      c.textContent = pick(["🍪", "🍪", "🍕", "🍩", "🍉", "🍦", "🧁", "🍓"]);
-      host.appendChild(c);
-      undo.add(() => c.remove());
-      const side = coin() ? 1 : -1, px = clamp(feetX() + side * rand(120, 360), 60, vw() - 60), floor = vh() + gAt(toX(px)) - 2;
-      c.style.translate = `${px}px -30px`;
-      c.animate([{ translate: `${px}px -30px` }, { translate: `${px}px ${floor}px`, offset: 0.8 }, { translate: `${px}px ${floor - 14}px`, offset: 0.9 }, { translate: `${px}px ${floor}px` }],
-        { duration: 1100, easing: "ease-in", fill: "forwards" });
-      setPose("look");
-      face(px < feetX());
-      say("!", 700);
-      await hold(1100); // the fall (checks, so a grab or a pause is not ignored meanwhile)
-      await runTo(toX(px - side * W * 0.75));
-      face(px < feetX());
-      setPose("crouch");
-      await hold(250);
-      for (const k of [0.7, 0.4, 0.1]) {
-        setPose(coin() ? "laugh" : "crouch");
-        c.style.scale = `${k}`;
-        dust(2, px, floor);
-        await hold(420);
-      }
-      c.remove();
-      noticed(0.15);
-      feel(0.12, 0); // a snack is energy too
-      feel(0.15, 0);
-      setPose("cheer");
-      say(line("yum"), 1800);
-      hearts(3);
-      await hold(1400);
-    } };
     // The time of day.
     const hour = () => new Date().getHours();
     A.late = { w: 0.8, ok: () => hour() >= 23 || hour() < 5, run: async () => {
@@ -2422,19 +2396,27 @@ export function startEngine(ctx: EngineCtx): () => void {
     // attention (petting, treats, music, you coming back) and sinks when nobody notices him for a long time.
     // Both steer what he feels like doing, how fast he walks and what he says.
     const T = ctx.traits;
-    let energy = 0.8, mood = 0.65, lastAttention = performance.now(), sentMood = "";
+    // Fullness: each snack fills him up a bit, and it wears off by itself in about four hours.
+    let energy = 0.8, mood = 0.65, full = 0.5, fullAt = Date.now(), lastAttention = performance.now(), sentMood = "";
+    const DIGEST = 4 * 3600e3;
     try {
       const m = JSON.parse(window.localStorage.getItem(ctx.storageKey + ":mood") || "null");
-      if (m) { energy = clamp(+m.e || 0.8, 0.05, 1); mood = clamp(Number.isFinite(+m.m) ? +m.m : 0.65, 0, 1); }
+      if (m) {
+        energy = clamp(+m.e || 0.8, 0.05, 1); mood = clamp(Number.isFinite(+m.m) ? +m.m : 0.65, 0, 1);
+        if (Number.isFinite(+m.f) && Number.isFinite(+m.ft)) { full = clamp(+m.f, 0, 1); fullAt = +m.ft; }
+      }
     } catch { /* storage blocked */ }
-    const feel = (de: number, dm: number) => {
+    const fullness = () => clamp(full - (Date.now() - fullAt) / DIGEST, 0, 1);
+    const feel = (de: number, dm: number, df = 0) => {
       energy = clamp(energy + de, 0.02, 1);
       mood = clamp(mood + dm, 0, 1);
-      const key = `${energy.toFixed(1)} ${mood.toFixed(1)}`;
+      if (df) { full = clamp(fullness() + df, 0, 1); fullAt = Date.now(); }
+      const f = fullness();
+      const key = `${energy.toFixed(1)} ${mood.toFixed(1)} ${f.toFixed(1)}`;
       if (key !== sentMood) {
         sentMood = key;
-        ctx.onMood({ energy, mood });
-        try { window.localStorage.setItem(ctx.storageKey + ":mood", JSON.stringify({ e: energy, m: mood })); } catch { /* storage blocked */ }
+        ctx.onMood({ energy, mood, full: f });
+        try { window.localStorage.setItem(ctx.storageKey + ":mood", JSON.stringify({ e: energy, m: mood, f, ft: Date.now() })); } catch { /* storage blocked */ }
       }
     };
     /** Noticed: the pointer came close, he was petted, poked, fed. */
@@ -2452,8 +2434,106 @@ export function startEngine(ctx: EngineCtx): () => void {
       else feel(-0.01 * n, 0);
       if (bored()) feel(0, -0.02); // nobody around to play with
       else if (mood < 0.5) feel(0, 0.01);
+      if (fullness() < 0.15) feel(0, -0.01); // hungry and grumpy
     };
-    ctx.onMood({ energy, mood });
+    ctx.onMood({ energy, mood, full: fullness() });
+
+    // ================= Food =================
+    // Food thrown in from outside (feed(), the app's cookie button) lands on the floor and stays there; throw as
+    // much as you like. He runs over and eats it piece by piece until he is full. A snack he doesn't get to within
+    // 5 s of landing fades away ("oops!"). Each one fills him up and gives a little energy and good mood.
+    type Snack = { el: HTMLElement; x: number; ready: number; timer: number; eating?: boolean };
+    let oopsAt = 0;
+    const snacks: Snack[] = [];
+    const FULL = 0.95;
+    const dropSnack = (call = true) => {
+      if (snacks.length >= 15) return; // the floor is covered already
+      const c = document.createElement("div");
+      c.className = "rb-cookie";
+      c.textContent = pick(["🍪", "🍪", "🍪", "🍕", "🍩", "🍉", "🍦", "🧁", "🍓", "🍌"]);
+      host.appendChild(c);
+      const px = clamp(feetX() + (coin() ? 1 : -1) * rand(70, 420), 50, vw() - 50), floor = vh() + gAt(toX(px)) - 2;
+      const t = rand(900, 1300);
+      c.style.translate = `${px}px -30px`;
+      c.animate([{ translate: `${px}px -30px` }, { translate: `${px}px ${floor}px`, offset: 0.8 }, { translate: `${px}px ${floor - 14}px`, offset: 0.9 }, { translate: `${px}px ${floor}px` }],
+        { duration: t, easing: "ease-in", fill: "forwards" });
+      const s: Snack = { el: c, x: px, ready: performance.now() + t, timer: 0 };
+      s.timer = window.setTimeout(() => missed(s), t + 5000); // not eaten in time: it fades away
+      snacks.push(s);
+      if (call && !eating && !grabbed) play("eat");
+    };
+    const missed = (s: Snack) => {
+      if (s.eating || !snacks.includes(s)) return;
+      dropOut(s, true);
+      // Missed it (not just full): a little "oops", at most every few seconds.
+      if (alive && !grabbed && fullness() < FULL && performance.now() - oopsAt > 3000) { oopsAt = performance.now(); say(line("missed"), 1400); }
+    };
+    const dropOut = (s: Snack, fade = false) => {
+      const i = snacks.indexOf(s);
+      if (i < 0) return;
+      snacks.splice(i, 1);
+      window.clearTimeout(s.timer);
+      if (fade) { s.el.style.transition = "opacity 0.6s"; s.el.style.opacity = "0"; window.setTimeout(() => s.el.remove(), 700); }
+      else s.el.remove();
+    };
+    ctx.pantry.drop = () => dropSnack();
+    let eating = false;
+    A.eat = { w: 40, ok: () => snacks.length > 0 && grounded() && !onDock() && (fullness() < FULL || forced === "eat"), run: async () => {
+      eating = true;
+      try {
+        while (snacks.length && alive) {
+          if (fullness() >= FULL) {
+            // Full: pat the belly and leave the rest.
+            setPose("laugh");
+            say(line("stuffed"), 2000);
+            await hold(1800);
+            break;
+          }
+          const s = snacks.reduce((a, b) => (Math.abs(b.x - feetX()) < Math.abs(a.x - feetX()) ? b : a));
+          const wait = s.ready - performance.now();
+          if (wait > 0) { setPose("look"); face(s.x < feetX()); await hold(wait); }
+          const side = s.x > feetX() ? 1 : -1;
+          await runTo(toX(s.x - side * W * 0.75));
+          if (!snacks.includes(s)) continue; // it faded meanwhile
+          s.eating = true; // it won't fade from under his nose
+          face(s.x < feetX());
+          setPose("crouch");
+          await hold(200);
+          const floor = vh() + gAt(toX(s.x)) - 2;
+          for (const k of [0.7, 0.4, 0.1]) {
+            setPose(coin() ? "laugh" : "crouch");
+            s.el.style.scale = `${k}`;
+            dust(2, s.x, floor);
+            await hold(330);
+          }
+          dropOut(s);
+          noticed(0.06);
+          feel(0.05, 0, 0.16);
+          if (fullness() < FULL && snacks.length) { if (coin(0.35)) say(line("yum"), 1000); continue; }
+          if (fullness() >= FULL) continue; // says he is full above
+          setPose("cheer");
+          say(line("yum"), 1600);
+          hearts(3);
+          await hold(1300);
+        }
+      } finally {
+        eating = false;
+        // Interrupted mid-bite (grabbed, paused): that snack must not stay forever.
+        snacks.filter((x) => x.eating).forEach((x) => dropOut(x, true));
+      }
+    } };
+    /** A cookie falls from the sky: he runs over and eats it. (Also "Give a treat" in the app's menu.) */
+    A.treat = { w: 0.3, ok: () => grounded() && !onDock() && fullness() < 0.6, run: async (t) => {
+      dropSnack(false);
+      await A.eat.run(t);
+    } };
+    /** Hungry: rubs his tummy and hints at a snack. */
+    A.hungry = { w: 0.7, ok: () => fullness() < 0.2 && grounded() && !snacks.length, run: async () => {
+      setPose("look");
+      face(mouse.x > 0 ? mouse.x < feetX() : coin());
+      say(line("hungry"), 2200);
+      await hold(2000);
+    } };
 
     A.attention = { w: 2.4, ok: () => T.follow && bored() && !S.away && mouse.x > 0 && performance.now() - mouse.t < 20000 && free(), run: async () => {
       await runTo(txAt(mouse.x));
@@ -3137,6 +3217,7 @@ export function startEngine(ctx: EngineCtx): () => void {
         if (name === "think" && T.chatty >= 2) w *= 2.5;
         if (S.away && name !== "snooze") w *= 0.05; // nobody around: mostly dozing
         if (S.low && (name === "nap" || name === "yawn")) w *= 3;
+        if (name === "eat") w = 1e6; // food on the floor and still hungry (its ok() checks both): that comes first
         if (name === forced) w = 1e9;
         opts.push([name, w, list]);
       }
@@ -3193,6 +3274,8 @@ export function startEngine(ctx: EngineCtx): () => void {
       // Paused or hidden mid-act: take away what the act put on screen (food, props, fades) right now.
       [...undo].forEach((f) => f());
       undo.clear();
+      [...snacks].forEach((s) => dropOut(s));
+      ctx.pantry.drop = undefined;
       cancelFx();
       timers.forEach((t) => window.clearTimeout(t));
       window.clearTimeout(bubbleTimer);

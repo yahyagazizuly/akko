@@ -118,12 +118,12 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKNavi
     let world = World()
     let senses = Senses()
     /// How he feels (0…1), from the page.
-    var energy = 0.8, mood = 0.65
-    var moodText: String {
-        let e = energy < 0.3 ? "устал" : energy > 0.7 ? "бодрый" : "в норме"
-        let m = mood < 0.35 ? "грустит 😔" : mood > 0.75 ? "счастлив 😊" : "спокоен 🙂"
-        return "\(m), \(e)"
-    }
+    var energy = 0.8, mood = 0.65, full = 0.5
+    var energyText: String { energy < 0.3 ? "устал 🥱" : energy > 0.7 ? "бодрый ⚡" : "в норме" }
+    var moodText: String { mood < 0.35 ? "грустит 😔" : mood > 0.75 ? "счастлив 😊" : "спокоен 🙂" }
+    var fullText: String { full < 0.2 ? "голодный 😋" : full < 0.6 ? "перекусил бы" : full < 0.95 ? "сытый" : "наелся 🫃" }
+    /** Throws him one snack; call again for more (they pile up on the floor). */
+    func feed() { js("desk.feed()") }
     /// He is standing on a window: watch it closely so he rides along when it is dragged.
     var perched = false
 
@@ -296,6 +296,7 @@ final class App: NSObject, NSApplicationDelegate, WKScriptMessageHandler, WKNavi
         case "mood":
             energy = body["e"] as? Double ?? energy
             mood = body["m"] as? Double ?? mood
+            full = body["f"] as? Double ?? full
             uiModel.refresh()
         case "act":
             lastAct = body["n"] as? String ?? ""

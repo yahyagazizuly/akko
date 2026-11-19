@@ -14,7 +14,7 @@
     onInteractive: (on) => post({ t: "interactive", on }),
     onAct: (n) => post({ t: "act", n }),
     onPerch: (on) => post({ t: "perch", on }),
-    onMood: (m) => post({ t: "mood", e: m.energy, m: m.mood }),
+    onMood: (m) => post({ t: "mood", e: m.energy, m: m.mood, f: m.full }),
   });
 
   let lowPower = null;
@@ -23,6 +23,7 @@
     cursor: (x, y) => chelik.pointer(x, y),
     // chelik.play() starts a stopped engine: only play while the app has him running, or he would walk on paused/asleep.
     play: (n) => { if (running) chelik.play(n); },
+    feed: () => { if (running) chelik.feed(); },
     world: (w) => { chelik.world(w ? w.b : null); if (w && w.a) chelik.sense({ t: "apps", a: w.a }); },
     sense: (e) => chelik.sense(e),
     state: (s) => {

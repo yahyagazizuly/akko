@@ -36,13 +36,13 @@ struct SettingsView: View {
                 switch tab {
                 case 0: looks
                 case 1: world
-                case 3: character
+                case 3: character; wellbeing
                 default: system
                 }
             }
             .formStyle(.grouped)
             .scrollDisabled(true)
-            .frame(height: 300)
+            .frame(height: tab == 3 ? 565 : tab == 0 ? 345 : 300)
         }
         .frame(width: 380)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in model.refresh() }
@@ -93,7 +93,8 @@ struct SettingsView: View {
         Toggle("Прятаться при видео и звонках", isOn: bind({ s.hideVideo }, { s.hideVideo = $0 }))
         Toggle("Прятаться в полноэкранных играх и презентациях", isOn: bind({ s.hideFullScreen }, { s.hideFullScreen = $0 }))
         Toggle("Прятаться при записи и показе экрана", isOn: bind({ s.hideCapture }, { s.hideCapture = $0 }))
-            .help("Выключено: во время записи экрана (⌘⇧5, QuickTime, OBS) и демонстрации в Zoom он остаётся на экране, даже если идёт видео.")
+        Text("Если выключено, во время записи экрана и демонстрации в Zoom он остаётся на виду.")
+            .font(.caption).foregroundStyle(.secondary)
     }
 
     /// Who he is: how lively and how chatty, and his habits.
@@ -109,13 +110,31 @@ struct SettingsView: View {
         Toggle("Бегать за курсором и звать поиграть", isOn: bind({ s.follow }, { s.follow = $0 }))
         Toggle("Напоминать о перерыве", isOn: bind({ s.breaks }, { s.breaks = $0 }))
         Toggle("Засыпать ночью", isOn: bind({ s.nightSleep }, { s.nightSleep = $0 }))
-        LabeledContent("Настроение") {
-            HStack(spacing: 6) {
-                Text(app.moodText).foregroundStyle(.secondary)
-                Button("☕") { app.play("coffee") }.help("Кофе — прибавит сил")
-                Button("🍪") { app.play("treat") }.help("Печенька — поднимет настроение и немного сил")
+    }
+
+    /// How he feels, as three bars, and what you can do about it.
+    @ViewBuilder private var wellbeing: some View {
+        Section {
+            meter("Энергия", app.energy, app.energyText, .yellow)
+            meter("Настроение", app.mood, app.moodText, .pink)
+            meter("Сытость", app.full, app.fullText, .orange)
+            HStack {
+                Button { app.feed() } label: { Label("Бросить еду", systemImage: "carrot.fill") }
+                Button { app.play("coffee") } label: { Label("Дать кофе", systemImage: "cup.and.saucer.fill") }
+                Spacer()
             }
             .disabled(!app.running)
+            Text("Трюки тратят энергию, сон и кофе её возвращают. Еду можно бросать сколько угодно: он ест, пока не наестся, а что не успел съесть — через 5 секунд исчезнет. Сытость проходит за несколько часов. Внимание и еда поднимают настроение, скука его портит.")
+                .font(.caption).foregroundStyle(.secondary)
+        } header: { Text("Самочувствие") }
+    }
+
+    private func meter(_ title: String, _ value: Double, _ word: String, _ tint: Color) -> some View {
+        LabeledContent(title) {
+            HStack(spacing: 10) {
+                ProgressView(value: max(0, min(1, value))).tint(tint).frame(width: 84)
+                Text(word).foregroundStyle(.secondary).frame(width: 100, alignment: .leading)
+            }
         }
     }
 

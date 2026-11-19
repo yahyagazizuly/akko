@@ -9,8 +9,8 @@ export type ChelikOptions = {
   root?: HTMLElement;
   /** His character: how active and how chatty he is, and a few habits. Changeable any time with set(). */
   traits?: Partial<Traits>;
-  /** Called when his energy or mood changes noticeably (both 0…1). */
-  onMood?: (m: { energy: number; mood: number }) => void;
+  /** Called when his energy, mood or fullness changes noticeably (all 0…1). */
+  onMood?: (m: { energy: number; mood: number; full: number }) => void;
   /** The language he speaks: "en" (default) or "ru". */
   lang?: "en" | "ru";
   /**
@@ -76,6 +76,8 @@ export type Chelik = {
   hide(): void;
   /** Do one act right now (e.g. "jetpack"). Returns the list of acts. */
   play(name?: string): string[];
+  /** Throw him a snack. Call it as often as you like: the food piles up on the floor and he eats until he is full. */
+  feed(): void;
   /** Feed the cursor position (viewport px) when `trackPointer` is false. */
   pointer(x: number, y: number): void;
   /**
@@ -186,6 +188,7 @@ export function createChelik(options: ChelikOptions = {}): Chelik {
   const world: { blocks: WorldBlock[] | null; changed?: () => void } = { blocks: null };
   const senses: Senses = { state: { apps: {}, music: false, away: false, plugged: null, low: false, typing: false } };
   let play: (name?: string) => string[] = () => [];
+  const pantry: { drop?: () => void } = {};
   let acts: string[] = [];
   let visible = true;
   let pending: string | null = null;
@@ -216,6 +219,7 @@ export function createChelik(options: ChelikOptions = {}): Chelik {
       world,
       senses,
       traits,
+      pantry,
       onMood: (m) => o.onMood?.(m),
       onPerch: (on) => o.onPerch?.(on),
       onInteractive: (on) => o.onInteractive?.(on),
@@ -250,6 +254,7 @@ export function createChelik(options: ChelikOptions = {}): Chelik {
       if (!stop) { if (name) { pending = name; start(); } return api.acts; }
       return play(name);
     },
+    feed: () => { pantry.drop?.(); },
     pointer: (x, y) => {
       if (x === mouse.x && y === mouse.y) return;
       mouse.x = x; mouse.y = y; mouse.t = performance.now();
