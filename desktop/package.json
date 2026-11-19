@@ -1,0 +1,37 @@
+{
+  "name": "akko-desktop",
+  "productName": "Akko",
+  "version": "0.1.0",
+  "description": "Акко бегает по рабочему столу",
+  "main": "src/main.js",
+  "private": true,
+  "scripts": {
+    "sync": "node ../scripts/sync-core.mjs",
+    "start": "npm run sync && electron .",
+    "dist:mac": "npm run sync && electron-builder --mac",
+    "dist:win": "npm run sync && electron-builder --win --x64 --arm64",
+    "dist": "npm run sync && electron-builder --mac --win"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "dev.minichelik.desktop",
+    "productName": "Akko",
+    "files": ["src/**/*", "assets/**/*", "package.json"],
+    "asar": true,
+    "electronLanguages": ["en", "ru"],
+    "mac": {
+      "category": "public.app-category.entertainment",
+      "icon": "assets/icon.png",
+      "target": [{ "target": "dmg", "arch": ["arm64", "x64"] }],
+      "extendInfo": { "LSUIElement": true }
+    },
+    "win": {
+      "icon": "assets/icon.png",
+      "target": [{ "target": "nsis" }]
+    },
+    "nsis": { "oneClick": true, "perMachine": false, "shortcutName": "Akko" }
+  }
+}

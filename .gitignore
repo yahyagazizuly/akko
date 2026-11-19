@@ -1,0 +1,17 @@
+# Promo videos and their tooling live separately
+/promo/
+
+# Dependencies and build output
+node_modules/
+core/dist/
+desktop/dist/
+desktop/src/vendor/
+mac/build/
+
+# Old local snapshots
+mac/backup/
+
+# Editor / OS
+.DS_Store
+.claude/
+*.log

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Akko demo</title>
+  <style>
+    body { margin: 0; font: 16px/1.5 system-ui, sans-serif; background: #faf8f2; color: #151513; }
+    main { max-width: 760px; margin: 0 auto; padding: 48px 20px 220px; }
+    .card { border: 2px solid #151513; border-radius: 14px; padding: 16px 20px; margin: 28px 0; background: #fff; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; }
+    button { font: inherit; padding: 6px 12px; border: 2px solid #151513; border-radius: 10px; background: #fff; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Акко</h1>
+    <p>Он живёт внизу экрана. Тыкни его, схвати и брось.</p>
+    <div class="card" data-chelik>
+      <div class="row">
+        <button id="pause">Пауза / дальше</button>
+        <button id="hide">Спрятать / показать</button>
+        <button id="lite">Экономия энергии</button>
+        <select id="act"></select>
+      </div>
+    </div>
+    <h2>На этот заголовок он может запрыгнуть</h2>
+    <div class="card" data-chelik>А на эту карточку — сесть, потянуть её или налепить наклейку.</div>
+  </main>
+  <script type="module">
+    import { createAkko as createChelik } from "./dist/akko.js";
+    const c = createChelik({ size: 48 });
+    window.chelik = c;
+    let lite = false;
+    document.getElementById("pause").onclick = () => c.toggle();
+    document.getElementById("hide").onclick = () => (c.visible ? c.hide() : c.show());
+    document.getElementById("lite").onclick = () => c.set({ lowPower: (lite = !lite) });
+    const sel = document.getElementById("act");
+    sel.innerHTML = `<option value="">Сделать трюк…</option>` + c.play().map((n) => `<option>${n}</option>`).join("");
+    sel.onchange = () => { if (sel.value) c.play(sel.value); sel.value = ""; };
+  </script>
+</body>
+</html>

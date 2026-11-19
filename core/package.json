@@ -1,0 +1,28 @@
+{
+  "name": "akko",
+  "version": "0.1.0",
+  "description": "Акко — маленький чернильный человечек, который бегает, прыгает и хулиганит на экране. Без зависимостей, для любого сайта или приложения.",
+  "type": "module",
+  "main": "./dist/akko.js",
+  "module": "./dist/akko.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/akko.js" },
+    "./react": { "types": "./dist/react.d.ts", "import": "./dist/react.js" }
+  },
+  "unpkg": "./dist/akko.global.js",
+  "files": ["dist"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": { "react": ">=17" },
+  "peerDependenciesMeta": { "react": { "optional": true } },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "typescript": "^5.6.0",
+    "@types/react": "^18.3.0"
+  },
+  "license": "MIT"
+}
