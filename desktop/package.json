@@ -19,19 +19,49 @@
   "build": {
     "appId": "dev.minichelik.desktop",
     "productName": "Akko",
-    "files": ["src/**/*", "assets/**/*", "package.json"],
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
     "asar": true,
-    "electronLanguages": ["en", "ru"],
+    "electronLanguages": [
+      "en",
+      "ru"
+    ],
     "mac": {
       "category": "public.app-category.entertainment",
       "icon": "assets/icon.png",
-      "target": [{ "target": "dmg", "arch": ["arm64", "x64"] }],
-      "extendInfo": { "LSUIElement": true }
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "extendInfo": {
+        "LSUIElement": true
+      },
+      "artifactName": "Akko-electron-${arch}.${ext}"
     },
     "win": {
       "icon": "assets/icon.png",
-      "target": [{ "target": "nsis" }]
+      "target": [
+        {
+          "target": "nsis"
+        }
+      ],
+      "artifactName": "Akko-Setup.exe"
     },
-    "nsis": { "oneClick": true, "perMachine": false, "shortcutName": "Akko" }
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "shortcutName": "Akko",
+      "runAfterFinish": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
   }
 }

@@ -16,7 +16,18 @@ He runs, jumps, climbs your windows, flies a jetpack, gets hungry, falls asleep 
 ![Size](https://img.shields.io/badge/app-~1%20MB-2ea44f)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-[Features](#-features) · [Install](#-install) · [Settings](#%EF%B8%8F-settings) · [Performance](#-performance) · [Library](#-the-akko-library) · [How it works](#-how-it-works)
+<br>
+
+<img src="docs/akko.gif" width="680" alt="Akko waving, flying a jetpack, eating cookies, cartwheeling and floating away on a balloon">
+
+<br><br>
+
+<a href="https://github.com/yahyagazizuly/akko/releases/latest/download/Akko.dmg"><img src="https://img.shields.io/badge/Download_for_macOS-Akko.dmg-111?style=for-the-badge&logo=apple&logoColor=white" alt="Download for macOS"></a>
+<a href="https://github.com/yahyagazizuly/akko/releases/latest/download/Akko-Setup.exe"><img src="https://img.shields.io/badge/Download_for_Windows-Akko--Setup.exe-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Download for Windows"></a>
+
+<br><br>
+
+[Features](#-features) · [Download](#-download) · [Settings](#%EF%B8%8F-settings) · [Performance](#-performance) · [Library](#-the-akko-library) · [How it works](#-how-it-works)
 
 </div>
 
@@ -75,7 +86,23 @@ You can **poke him, pet him, grab him with the mouse and throw him**. Every clic
 
 ---
 
-## 📦 Install
+## 📥 Download
+
+| Platform | File | How |
+|---|---|---|
+| 🍎 macOS 13+ (Apple Silicon & Intel) | [**Akko.dmg**](https://github.com/yahyagazizuly/akko/releases/latest/download/Akko.dmg) | open it and drag Akko into Applications |
+| 🪟 Windows 10 / 11 | [**Akko-Setup.exe**](https://github.com/yahyagazizuly/akko/releases/latest/download/Akko-Setup.exe) | run it — Akko installs and starts by himself |
+
+Nothing else to install. All versions are on the [Releases](https://github.com/yahyagazizuly/akko/releases) page.
+
+> [!TIP]
+> **First launch.** The builds aren't notarized yet, so the system asks once.
+> **macOS:** right-click Akko → *Open* (or System Settings → Privacy & Security → *Open Anyway*).
+> **Windows:** if SmartScreen appears, click *More info* → *Run anyway*.
+
+---
+
+## 📦 Build from source
 
 ### macOS — native app
 
@@ -111,8 +138,13 @@ npm start            # run from source
 npm run dist:win     # installer → desktop/dist/
 ```
 
-> [!NOTE]
-> Builds are unsigned: in Windows SmartScreen click *More info* → *Run anyway*.
+### Releases
+
+Push a tag and GitHub Actions builds both installers and publishes a release:
+
+```bash
+git tag v0.1.1 && git push origin v0.1.1
+```
 
 ---
 

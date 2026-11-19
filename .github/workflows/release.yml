@@ -1,0 +1,72 @@
+name: Release
+
+# Push a tag like v0.1.1 and this builds Akko.dmg (macOS) and Akko-Setup.exe (Windows)
+# and attaches both to a GitHub Release. Run it by hand from the Actions tab to just test the builds.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  mac:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build Akko.app and dmg
+        run: |
+          cd core && npm ci && cd ..
+          cd mac && ./build.sh
+          cp build/Akko-*.dmg ../Akko.dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac
+          path: Akko.dmg
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build installer
+        shell: bash
+        run: |
+          cd core && npm ci && cd ..
+          cd desktop && npm ci
+          npm run sync
+          npx electron-builder --win --x64 --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: desktop/dist/Akko-Setup.exe
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [mac, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            Akko.dmg
+            Akko-Setup.exe
+          body: |
+            ## Download
+
+            | | |
+            |---|---|
+            | 🍎 **macOS 13+** (Apple Silicon & Intel) | **Akko.dmg** — open it and drag Akko into Applications |
+            | 🪟 **Windows 10/11** | **Akko-Setup.exe** — run it, Akko installs and starts by himself |
+
+            **First launch on macOS:** the app isn't notarized yet, so macOS asks first. Right-click Akko → *Open*, or go to System Settings → Privacy & Security → *Open Anyway*.
+            **First launch on Windows:** if SmartScreen appears, click *More info* → *Run anyway*.
